@@ -1,22 +1,37 @@
-import { contextBridge } from 'electron'
+import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 
-// Custom APIs for renderer
-const api = {}
+const authApi = {
+  signIn: (): Promise<{ success: boolean; error?: string }> =>
+    ipcRenderer.invoke('auth:sign-in'),
 
-// Use `contextBridge` APIs to expose Electron APIs to
-// renderer only if context isolation is enabled, otherwise
-// just add to the DOM global.
+  signOut: (): Promise<{ success: boolean; error?: string }> =>
+    ipcRenderer.invoke('auth:sign-out'),
+
+  getUser: (): Promise<unknown> => ipcRenderer.invoke('auth:get-user'),
+
+  onAuthChange: (callback: (data: { user: unknown }) => void): (() => void) => {
+    const listener = (
+      _event: Electron.IpcRendererEvent,
+      data: { user: unknown }
+    ): void => {
+      callback(data)
+    }
+    ipcRenderer.on('auth:on-auth-change', listener)
+    return () => ipcRenderer.removeListener('auth:on-auth-change', listener)
+  },
+}
+
 if (process.contextIsolated) {
   try {
     contextBridge.exposeInMainWorld('electron', electronAPI)
-    contextBridge.exposeInMainWorld('api', api)
+    contextBridge.exposeInMainWorld('auth', authApi)
   } catch (error) {
     console.error(error)
   }
 } else {
-  // @ts-ignore (define in dts)
+  // @ts-expect-error (define in dts)
   window.electron = electronAPI
-  // @ts-ignore (define in dts)
-  window.api = api
+  // @ts-expect-error (define in dts)
+  window.auth = authApi
 }

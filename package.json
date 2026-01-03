@@ -23,6 +23,8 @@
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.2",
     "@electron-toolkit/utils": "^4.0.0",
+    "@workos/authkit-session": "^0.3.2",
+    "electron-store": "^8.2.0",
     "electron-updater": "^6.3.9"
   },
   "devDependencies": {
