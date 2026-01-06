@@ -4,7 +4,7 @@ import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { registerProtocol, setupDeepLinkHandling } from './auth/deep-link-handler'
 import { setupAuthIpcHandlers, notifyAuthChange } from './auth/ipc-handlers'
-import { getAuthState } from './auth/auth-service'
+import { getUser } from './auth/auth'
 
 const gotLock = app.requestSingleInstanceLock()
 if (!gotLock) {
@@ -62,16 +62,16 @@ app.whenReady().then(async () => {
   setupAuthIpcHandlers(mainWindow)
   setupDeepLinkHandling(mainWindow, async (success) => {
     if (success) {
-      const auth = await getAuthState()
-      notifyAuthChange(mainWindow, auth.user ?? null)
+      const user = await getUser()
+      notifyAuthChange(mainWindow, user)
     }
   })
 
   try {
-    const auth = await getAuthState()
-    if (auth.user) {
+    const user = await getUser()
+    if (user) {
       mainWindow.webContents.once('did-finish-load', () => {
-        notifyAuthChange(mainWindow, auth.user)
+        notifyAuthChange(mainWindow, user)
       })
     }
   } catch (error) {

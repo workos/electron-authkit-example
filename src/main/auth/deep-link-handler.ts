@@ -1,6 +1,6 @@
 import { app, BrowserWindow } from 'electron'
 import path from 'path'
-import { authService } from './auth-service'
+import { handleCallback } from './auth'
 
 const PROTOCOL = 'workos-auth'
 
@@ -34,7 +34,7 @@ export function setupDeepLinkHandling(
     }
 
     try {
-      await authService.handleCallback({}, {}, { code, state: params.get('state') ?? undefined })
+      await handleCallback(code)
       onAuthComplete(true)
     } catch (err) {
       console.error('Auth callback failed:', err)

@@ -1,8 +1,6 @@
-import type { User } from '@workos/authkit-session'
+import type { User } from '@workos-inc/node'
 
-// Marker types for authkit-session generic interface (Electron doesn't use HTTP req/res)
-export type ElectronRequest = Record<string, never>
-export type ElectronResponse = Record<string, never>
+export type { User }
 
 export const AUTH_CHANNELS = {
   SIGN_IN: 'auth:sign-in',

@@ -1,11 +1,11 @@
 import { ipcMain, shell, BrowserWindow } from 'electron'
-import { authService, getAuthState } from './auth-service'
+import { getSignInUrl, getUser, clearSession, getLogoutUrl, getSessionId } from './auth'
 import { AUTH_CHANNELS, type AuthIpcResult, type AuthChangePayload } from './types'
 
 export function setupAuthIpcHandlers(mainWindow: BrowserWindow): void {
   ipcMain.handle(AUTH_CHANNELS.SIGN_IN, async (): Promise<AuthIpcResult> => {
     try {
-      const url = await authService.getSignInUrl()
+      const url = await getSignInUrl()
       await shell.openExternal(url)
       return { success: true }
     } catch (error) {
@@ -16,15 +16,11 @@ export function setupAuthIpcHandlers(mainWindow: BrowserWindow): void {
 
   ipcMain.handle(AUTH_CHANNELS.SIGN_OUT, async (): Promise<AuthIpcResult> => {
     try {
-      const auth = await getAuthState()
-
-      if (auth.user) {
-        const { logoutUrl } = await authService.signOut(auth.sessionId)
-        await shell.openExternal(logoutUrl)
-      } else {
-        await authService.clearSession({})
+      const sessionId = getSessionId()
+      if (sessionId) {
+        await shell.openExternal(getLogoutUrl(sessionId))
       }
-
+      clearSession()
       notifyAuthChange(mainWindow, null)
       return { success: true }
     } catch (error) {
@@ -35,8 +31,7 @@ export function setupAuthIpcHandlers(mainWindow: BrowserWindow): void {
 
   ipcMain.handle(AUTH_CHANNELS.GET_USER, async () => {
     try {
-      const { user } = await getAuthState()
-      return user ?? null
+      return await getUser()
     } catch (error) {
       console.error('Get user failed:', error)
       return null

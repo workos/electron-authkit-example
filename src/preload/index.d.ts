@@ -1,5 +1,5 @@
 import { ElectronAPI } from '@electron-toolkit/preload'
-import type { User } from '@workos/authkit-session'
+import type { User } from '@workos-inc/node'
 
 interface AuthApi {
   signIn(): Promise<{ success: boolean; error?: string }>
