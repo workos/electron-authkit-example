@@ -14,7 +14,7 @@ interface StoreSchema {
 const workos = new WorkOS({ clientId: CLIENT_ID })
 const store = new Store<StoreSchema>({
   name: 'authkit-session',
-  encryptionKey: import.meta.env.MAIN_VITE_WORKOS_COOKIE_PASSWORD,
+  encryptionKey: import.meta.env.MAIN_VITE_WORKOS_ENCRYPTION_SECRET,
   defaults: { session: null, pkce: null }
 })
 

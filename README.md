@@ -16,8 +16,7 @@ Create `.env`:
 
 ```bash
 MAIN_VITE_WORKOS_CLIENT_ID=client_xxx
-MAIN_VITE_WORKOS_API_KEY=sk_test_xxx
-MAIN_VITE_WORKOS_COOKIE_PASSWORD=<32+ character secret>
+MAIN_VITE_WORKOS_ENCRYPTION_SECRET=<32+ character secret>
 ```
 
 Add `workos-auth://callback` as a redirect URI in your [WorkOS Dashboard](https://dashboard.workos.com).

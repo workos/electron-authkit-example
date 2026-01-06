@@ -2,8 +2,7 @@
 
 interface ImportMetaEnv {
   readonly MAIN_VITE_WORKOS_CLIENT_ID: string
-  readonly MAIN_VITE_WORKOS_API_KEY: string
-  readonly MAIN_VITE_WORKOS_COOKIE_PASSWORD: string
+  readonly MAIN_VITE_WORKOS_ENCRYPTION_SECRET: string
 }
 
 interface ImportMeta {
