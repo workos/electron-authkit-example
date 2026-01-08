@@ -1,4 +1,4 @@
-import { WorkOS } from '@workos-inc/node'
+import { createWorkOS } from '@workos-inc/node'
 import Store from 'electron-store'
 import type { User } from '@workos-inc/node'
 
@@ -11,7 +11,7 @@ interface StoreSchema {
   pkce: { codeVerifier: string; expiresAt: number } | null
 }
 
-const workos = new WorkOS({ clientId: CLIENT_ID })
+const workos = createWorkOS({ clientId: CLIENT_ID })
 const store = new Store<StoreSchema>({
   name: 'authkit-session',
   encryptionKey: import.meta.env.MAIN_VITE_WORKOS_ENCRYPTION_SECRET,
@@ -24,7 +24,6 @@ export async function getSignInUrl(): Promise<string> {
   store.set('pkce', { codeVerifier, expiresAt: Date.now() + PKCE_TTL_MS })
 
   return workos.userManagement.getAuthorizationUrl({
-    clientId: CLIENT_ID,
     redirectUri: REDIRECT_URI,
     codeChallenge,
     codeChallengeMethod: 'S256',
@@ -42,7 +41,6 @@ export async function handleCallback(code: string): Promise<User> {
   }
 
   const auth = await workos.userManagement.authenticateWithCode({
-    clientId: CLIENT_ID,
     code,
     codeVerifier: pkce.codeVerifier
   })
