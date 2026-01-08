@@ -2,7 +2,7 @@
 
 <img width="2024" height="1564" alt="capture_20260105_093742" src="https://github.com/user-attachments/assets/6610fb06-dd1b-4211-a3b5-2f1b60c94311" />
 
-An example Electron app with WorkOS AuthKit authentication using [`@workos/authkit-session`](https://www.npmjs.com/package/@workos/authkit-session).
+An example Electron app with WorkOS AuthKit authentication using the [`@workos-inc/node`](https://www.npmjs.com/package/@workos-inc/node) SDK with PKCE.
 
 ## Quick Start
 
@@ -27,12 +27,11 @@ pnpm dev
 
 ## What This Demonstrates
 
-Electron doesn't have HTTP cookies. This example shows how to use `@workos/authkit-session` (the framework-agnostic core that powers [`@workos/authkit-tanstack-react-start`](https://www.npmjs.com/package/@workos/authkit-tanstack-react-start)) with a custom storage adapter.
+Electron apps can't use traditional cookie-based auth flows. This example shows how to implement WorkOS AuthKit authentication using:
 
-Two key Electron-specific pieces:
-
-1. **Session storage adapter** — Implements `SessionStorage` interface using `electron-store` for encrypted persistence
-2. **Deep link handling** — Registers `workos-auth://` protocol to receive OAuth callbacks
+1. **PKCE (Proof Key for Code Exchange)** — Secure OAuth flow for public clients that can't safely store a client secret
+2. **Deep link handling** — Registers `workos-auth://` protocol to receive OAuth callbacks from the system browser
+3. **Encrypted session storage** — Uses `electron-store` with encryption for secure token persistence
 
 ## Architecture
 
@@ -42,12 +41,12 @@ Renderer (React)          Main Process
 │  useAuth()   │──IPC───▶│  IPC Handlers           │
 │  signIn()    │         │         │               │
 │  signOut()   │◀─────── │         ▼               │
-└──────────────┘         │  AuthService            │
-                         │  (authkit-session)      │
+└──────────────┘         │  auth.ts                │
+                         │  (@workos-inc/node)     │
                          │         │               │
                          │         ▼               │
-                         │  ElectronSessionStorage │
-                         │  (electron-store)       │
+                         │  electron-store         │
+                         │  (encrypted)            │
                          └─────────────────────────┘
 ```
 
@@ -55,8 +54,7 @@ Renderer (React)          Main Process
 
 | File | Purpose |
 |------|---------|
-| [`src/main/auth/ElectronSessionStorage.ts`](src/main/auth/ElectronSessionStorage.ts) | `SessionStorage` implementation using `electron-store` |
-| [`src/main/auth/auth-service.ts`](src/main/auth/auth-service.ts) | Configures `authkit-session` with the adapter |
+| [`src/main/auth/auth.ts`](src/main/auth/auth.ts) | PKCE flow, token exchange, session storage, refresh logic |
 | [`src/main/auth/deep-link-handler.ts`](src/main/auth/deep-link-handler.ts) | Registers `workos-auth://` protocol, handles OAuth callback |
 | [`src/main/auth/ipc-handlers.ts`](src/main/auth/ipc-handlers.ts) | IPC handlers for sign-in, sign-out, get-user |
 | [`src/preload/index.ts`](src/preload/index.ts) | Exposes `window.auth` API to renderer |
@@ -64,13 +62,20 @@ Renderer (React)          Main Process
 
 ## How It Works
 
-1. User clicks "Sign In" → main process opens WorkOS auth page in system browser
-2. User authenticates → WorkOS redirects to `workos-auth://callback?code=xxx`
-3. OS routes the URL to your app → `open-url` event fires
-4. Main process exchanges code for tokens via `authService.handleCallback()`
-5. Session saved to encrypted store → renderer notified via IPC
+### PKCE Flow
 
-Token refresh is automatic when calling `getAuthState()`.
+[PKCE (Proof Key for Code Exchange)](https://oauth.net/2/pkce/) is required for Electron apps because they're "public clients"—the app binary can be decompiled, so a client secret can't be safely embedded.
+
+1. **Sign-in initiated** — App generates a random `code_verifier` and derives a `code_challenge` (SHA256 hash)
+2. **Authorization request** — User is sent to WorkOS with the `code_challenge`; the `code_verifier` is stored locally
+3. **User authenticates** — WorkOS redirects to `workos-auth://callback?code=xxx`
+4. **Token exchange** — App sends the `code` + original `code_verifier` to WorkOS
+5. **Verification** — WorkOS hashes the `code_verifier` and confirms it matches the original `code_challenge`
+6. **Tokens issued** — Access and refresh tokens are returned and stored encrypted
+
+This ensures that even if an attacker intercepts the authorization code, they can't exchange it without the `code_verifier` that never left the app.
+
+Token refresh is automatic when calling `getUser()`.
 
 ## Build
 
@@ -82,6 +87,7 @@ pnpm build:linux  # Linux
 
 ## Learn More
 
-- [`@workos/authkit-session`](https://www.npmjs.com/package/@workos/authkit-session) — The framework-agnostic session library
+- [`@workos-inc/node`](https://www.npmjs.com/package/@workos-inc/node) — WorkOS Node.js SDK
 - [WorkOS AuthKit Docs](https://workos.com/docs/user-management) — User management documentation
+- [PKCE (RFC 7636)](https://oauth.net/2/pkce/) — Proof Key for Code Exchange specification
 - [Electron Deep Links](https://www.electronjs.org/docs/latest/tutorial/launch-app-from-url-in-another-app) — Protocol handling in Electron
