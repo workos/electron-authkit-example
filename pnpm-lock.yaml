@@ -18,8 +18,8 @@ importers:
         specifier: ^3.2.1
         version: 3.2.1(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       '@workos-inc/node':
-        specifier: v8.0.0-rc.9
-        version: 8.0.0-rc.9
+        specifier: 8.0.0-rc.10
+        version: 8.0.0-rc.10
       electron-store:
         specifier: ^11.0.2
         version: 11.0.2
@@ -1652,8 +1652,8 @@ packages:
     peerDependencies:
       vite: ^4.2.0 || ^5.0.0 || ^6.0.0 || ^7.0.0
 
-  '@workos-inc/node@8.0.0-rc.9':
-    resolution: {integrity: sha512-JY2rTP9uYLX3GL8Hl5oLKw9jRhZ66gAbQZBSz90cXN20c4Fg+Sto7iYfIhoVB7VMRjJFEXJCMYxrNQPUvplAPQ==}
+  '@workos-inc/node@8.0.0-rc.10':
+    resolution: {integrity: sha512-U75XCmjzVUCEgUJkny5BAiXHxkEhWPzb8/cknCYK3HwW4tPVNtEOZyLx8Bdx/O+Dp3DgO+q/2lEETIqe/kxEvw==}
     engines: {node: '>=20.15.0'}
 
   '@xmldom/xmldom@0.8.11':
@@ -5314,7 +5314,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@workos-inc/node@8.0.0-rc.9':
+  '@workos-inc/node@8.0.0-rc.10':
     dependencies:
       iron-webcrypto: 2.0.0
       jose: 6.1.3

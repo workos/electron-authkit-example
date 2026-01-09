@@ -25,7 +25,7 @@
     "@electron-toolkit/preload": "^3.0.2",
     "@electron-toolkit/utils": "^4.0.0",
     "@radix-ui/themes": "^3.2.1",
-    "@workos-inc/node": "v8.0.0-rc.9",
+    "@workos-inc/node": "8.0.0-rc.10",
     "electron-store": "^11.0.2",
     "electron-updater": "^6.3.9"
   },
