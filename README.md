@@ -16,7 +16,6 @@ Create `.env`:
 
 ```bash
 MAIN_VITE_WORKOS_CLIENT_ID=client_xxx
-MAIN_VITE_WORKOS_ENCRYPTION_SECRET=<32+ character secret>
 ```
 
 Add `workos-auth://callback` as a redirect URI in your [WorkOS Dashboard](https://dashboard.workos.com).
@@ -31,7 +30,7 @@ Electron apps can't use traditional cookie-based auth flows. This example shows 
 
 1. **PKCE (Proof Key for Code Exchange)** — Secure OAuth flow for public clients that can't safely store a client secret
 2. **Deep link handling** — Registers `workos-auth://` protocol to receive OAuth callbacks from the system browser
-3. **Encrypted session storage** — Uses `electron-store` with encryption for secure token persistence
+3. **Secure session storage** — Uses `electron-store` with Electron's `safeStorage` API (OS keychain) for token persistence
 
 ## Architecture
 
@@ -71,7 +70,7 @@ Renderer (React)          Main Process
 3. **User authenticates** — WorkOS redirects to `workos-auth://callback?code=xxx`
 4. **Token exchange** — App sends the `code` + original `code_verifier` to WorkOS
 5. **Verification** — WorkOS hashes the `code_verifier` and confirms it matches the original `code_challenge`
-6. **Tokens issued** — Access and refresh tokens are returned and stored encrypted
+6. **Tokens issued** — Access and refresh tokens are returned and stored securely via OS keychain
 
 This ensures that even if an attacker intercepts the authorization code, they can't exchange it without the `code_verifier` that never left the app.
 
