@@ -1,3 +1,4 @@
+import { safeStorage } from 'electron'
 import { createWorkOS } from '@workos-inc/node'
 import Store from 'electron-store'
 import type { User } from '@workos-inc/node'
@@ -14,7 +15,9 @@ interface StoreSchema {
 const workos = createWorkOS({ clientId: CLIENT_ID })
 const store = new Store<StoreSchema>({
   name: 'authkit-session',
-  encryptionKey: import.meta.env.MAIN_VITE_WORKOS_ENCRYPTION_SECRET,
+  encryptionKey: safeStorage.isEncryptionAvailable()
+    ? safeStorage.encryptString('authkit-session-key').toString('base64')
+    : undefined,
   defaults: { session: null, pkce: null }
 })
 
